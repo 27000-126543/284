@@ -144,19 +144,26 @@ export const mockAlarms: Alarm[] = Array.from({ length: 20 }, (_, i) => {
     });
   }
 
+  const alarmType = Mock.Random.pick(alarmTypes);
   return {
     id: `alarm-${i + 1}`,
     zoneId: zone.id,
     zoneName: zone.name,
-    type: Mock.Random.pick(alarmTypes),
+    type: alarmType,
+    typeLabel: alarmType,
     level,
     levelLabel: levelLabels[level],
     status,
     statusLabel: alarmStatusLabels[status],
-    content: `${zone.name}${Mock.Random.pick(alarmTypes)}，请及时处理`,
+    title: `${zone.name}${alarmType}告警`,
+    content: `${zone.name}${alarmType}，请及时处理`,
+    description: `${zone.name}区域检测到${alarmType}异常，已自动推送告警至当班巡线员，请及时确认并处理。`,
     createdAt,
     confirmedBy: status !== 'unconfirmed' ? Mock.Random.pick(['张三', '李四', '王五', '赵六']) : undefined,
     confirmedAt: status !== 'unconfirmed' ? dayjs().subtract(Mock.Random.integer(0, 60), 'minute').format('YYYY-MM-DD HH:mm:ss') : undefined,
+    resolvedAt: status === 'resolved' ? dayjs().subtract(Mock.Random.integer(0, 30), 'minute').format('YYYY-MM-DD HH:mm:ss') : undefined,
+    deviceId: status === 'resolved' ? `device-${Mock.Random.integer(1, 30)}` : undefined,
+    deviceName: status === 'resolved' ? `设备-${Mock.Random.integer(1, 30)}` : undefined,
     escalateLevel,
     escalateLevelLabel: ['巡线员', '分区组长', '总控中心'][escalateLevel],
     escalateLogs,
@@ -294,6 +301,16 @@ const roleLabels: Record<string, string> = {
 
 export const mockUsers: User[] = [
   {
+    id: 'user-0',
+    username: 'inspector',
+    realName: '巡线员测试',
+    role: 'inspector',
+    roleLabel: roleLabels.inspector,
+    zoneIds: ['zone-1', 'zone-2'],
+    phone: '13800138000',
+    status: true,
+  },
+  {
     id: 'user-1',
     username: 'inspector1',
     realName: '张三',
@@ -311,6 +328,26 @@ export const mockUsers: User[] = [
     roleLabel: roleLabels.inspector,
     zoneIds: ['zone-3', 'zone-4'],
     phone: '13800138002',
+    status: true,
+  },
+  {
+    id: 'user-0-leader',
+    username: 'leader',
+    realName: '组长测试',
+    role: 'leader',
+    roleLabel: roleLabels.leader,
+    zoneIds: ['zone-1', 'zone-2', 'zone-3', 'zone-4'],
+    phone: '13800138010',
+    status: true,
+  },
+  {
+    id: 'user-0-control',
+    username: 'control',
+    realName: '总控测试',
+    role: 'control',
+    roleLabel: roleLabels.control,
+    zoneIds: mockZones.map((z) => z.id),
+    phone: '13800138020',
     status: true,
   },
   {

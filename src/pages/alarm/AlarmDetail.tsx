@@ -15,6 +15,7 @@ import {
 import { Button, Tag, Descriptions, Timeline, Card, Space, message } from 'antd';
 import dayjs from 'dayjs';
 import { useAlarmStore } from '@/store/useAlarmStore';
+import { usePermission } from '@/hooks/usePermission';
 import type { Alarm, EscalateLog } from '@/types';
 
 const getLevelColor = (level: string) => {
@@ -65,13 +66,14 @@ const getEscalateLevelLabel = (level: number) => {
 const AlarmDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { currentUser } = usePermission();
   const { alarms, confirmAlarm, resolveAlarm } = useAlarmStore();
 
   const alarm = alarms.find((a) => a.id === id);
 
   const handleConfirm = () => {
-    if (alarm) {
-      confirmAlarm(alarm.id);
+    if (alarm && currentUser) {
+      confirmAlarm(alarm.id, currentUser.id, currentUser.realName);
       message.success('告警已确认');
     }
   };
@@ -177,8 +179,8 @@ const AlarmDetail: React.FC = () => {
         <div className="lg:col-span-2 space-y-6">
           <Card className="card-gradient-border">
             <Descriptions title="基本信息" column={2} bordered size="small">
-              <Descriptions.Item label="告警标题">{alarm.title}</Descriptions.Item>
-              <Descriptions.Item label="告警类型">{alarm.typeLabel}</Descriptions.Item>
+              <Descriptions.Item label="告警标题">{alarm.title || alarm.content}</Descriptions.Item>
+              <Descriptions.Item label="告警类型">{alarm.typeLabel || alarm.type}</Descriptions.Item>
               <Descriptions.Item label="所属分区">
                 <div className="flex items-center gap-1">
                   <MapPin className="w-3 h-3 text-dark-text3" />
@@ -203,7 +205,7 @@ const AlarmDetail: React.FC = () => {
                 {dayjs().diff(dayjs(alarm.createdAt), 'minute')} 分钟
               </Descriptions.Item>
               <Descriptions.Item label="告警描述" span={2}>
-                {alarm.description}
+                {alarm.description || alarm.content}
               </Descriptions.Item>
             </Descriptions>
           </Card>

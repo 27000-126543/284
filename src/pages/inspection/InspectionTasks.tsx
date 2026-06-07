@@ -31,9 +31,9 @@ const { Option } = Select;
 
 const InspectionTasks: React.FC = () => {
   const navigate = useNavigate();
-  const { inspectionTasks, updateInspectionTask } = useWorkOrderStore();
+  const { inspectionTasks, updateInspectionTask, markCheckpoint } = useWorkOrderStore();
   const { zones } = useZoneStore();
-  const { currentUser, isInspector } = usePermission();
+  const { currentUser, isInspector, checkZoneAccess } = usePermission();
   const [searchText, setSearchText] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [zoneFilter, setZoneFilter] = useState<string>('all');
@@ -46,7 +46,8 @@ const InspectionTasks: React.FC = () => {
       task.routeName?.toLowerCase().includes(searchText.toLowerCase());
     const matchStatus = statusFilter === 'all' || task.status === statusFilter;
     const matchZone = zoneFilter === 'all' || task.zoneId === zoneFilter;
-    return matchSearch && matchStatus && matchZone;
+    const matchPermission = checkZoneAccess(task.zoneId);
+    return matchSearch && matchStatus && matchZone && matchPermission;
   });
 
   const handleStartTask = (task: InspectionTask) => {
@@ -72,19 +73,7 @@ const InspectionTasks: React.FC = () => {
       (cp) => cp.qrCode === qrCode || cp.id === qrCode
     );
     if (checkpoint && !checkpoint.checked) {
-      const newCheckpoints = selectedTask.checkpoints.map((cp) =>
-        cp.id === checkpoint.id
-          ? { ...cp, checked: true, checkedAt: dayjs().format('YYYY-MM-DD HH:mm:ss') }
-          : cp
-      );
-      const allChecked = newCheckpoints.every((cp) => cp.checked);
-      updateInspectionTask({
-        ...selectedTask,
-        checkpoints: newCheckpoints,
-        status: allChecked ? 'completed' : 'in_progress',
-        statusLabel: allChecked ? '已完成' : '进行中',
-        endTime: allChecked ? dayjs().format('YYYY-MM-DD HH:mm:ss') : undefined,
-      });
+      markCheckpoint(selectedTask.id, checkpoint.id);
       message.success(`打卡成功：${checkpoint.name}`);
       setShowQrModal(false);
     } else if (checkpoint?.checked) {

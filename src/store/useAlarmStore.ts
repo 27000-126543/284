@@ -70,6 +70,7 @@ export const useAlarmStore = create<AlarmState>()(
                   ...a,
                   status: 'resolved',
                   statusLabel: '已解除',
+                  resolvedAt: dayjs().format('YYYY-MM-DD HH:mm:ss'),
                 }
               : a
           ),
