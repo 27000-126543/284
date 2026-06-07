@@ -40,7 +40,7 @@ const pipelineTypeOptions = ['电力', '通信', '给水', '排水', '燃气', '
 const ZoneList: React.FC = () => {
   const navigate = useNavigate();
   const { zones, addZone, updateZone, deleteZone, toggleAccess } = useZoneStore();
-  const { isAdmin, isControl } = usePermission();
+  const { isAdmin, isControl, checkZoneAccess } = usePermission();
   const [searchText, setSearchText] = useState('');
   const [statusFilter, setStatusFilter] = useState<string | undefined>();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -54,9 +54,10 @@ const ZoneList: React.FC = () => {
       const matchSearch =
         zone.name.toLowerCase().includes(searchText.toLowerCase());
       const matchStatus = !statusFilter || zone.status === statusFilter;
-      return matchSearch && matchStatus;
+      const matchPermission = checkZoneAccess(zone.id);
+      return matchSearch && matchStatus && matchPermission;
     });
-  }, [zones, searchText, statusFilter]);
+  }, [zones, searchText, statusFilter, checkZoneAccess]);
 
   const handleAdd = () => {
     setEditingZone(null);

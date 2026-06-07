@@ -42,7 +42,7 @@ const DeviceList: React.FC = () => {
   const navigate = useNavigate();
   const { devices, toggleDevice } = useDeviceStore();
   const { zones } = useZoneStore();
-  const { isAdmin, isControl, isLeader } = usePermission();
+  const { isAdmin, isControl, isLeader, checkZoneAccess } = usePermission();
   const [searchText, setSearchText] = useState('');
   const [typeFilter, setTypeFilter] = useState<string | undefined>();
   const [statusFilter, setStatusFilter] = useState<string | undefined>();
@@ -57,9 +57,10 @@ const DeviceList: React.FC = () => {
       const matchType = !typeFilter || device.type === typeFilter;
       const matchStatus = !statusFilter || device.status === statusFilter;
       const matchZone = !zoneFilter || device.zoneId === zoneFilter;
-      return matchSearch && matchType && matchStatus && matchZone;
+      const matchPermission = checkZoneAccess(device.zoneId);
+      return matchSearch && matchType && matchStatus && matchZone && matchPermission;
     });
-  }, [devices, searchText, typeFilter, statusFilter, zoneFilter]);
+  }, [devices, searchText, typeFilter, statusFilter, zoneFilter, checkZoneAccess]);
 
   const handleToggle = (id: string, isRemoteControllable: boolean, status: string) => {
     if (!isRemoteControllable) {

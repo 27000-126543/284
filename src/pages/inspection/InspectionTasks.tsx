@@ -16,7 +16,7 @@ import {
   Route,
   ClipboardList,
 } from 'lucide-react';
-import { Table, Select, DatePicker, Button, Tag, Modal, message } from 'antd';
+import { Table, Select, DatePicker, Button, Tag, message } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
 import { useWorkOrderStore } from '@/store/useWorkOrderStore';
@@ -24,6 +24,7 @@ import { useZoneStore } from '@/store/useZoneStore';
 import { usePermission } from '@/hooks/usePermission';
 import { getStatusBgColor } from '@/utils/format';
 import type { InspectionTask } from '@/types';
+import QRCodeScanner from '@/components/QRCodeScanner';
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
@@ -65,17 +66,17 @@ const InspectionTasks: React.FC = () => {
     setShowQrModal(true);
   };
 
-  const handleScanCode = () => {
+  const handleScanSuccess = (qrCode: string) => {
     if (!selectedTask) return;
-    const uncheckedIdx = selectedTask.checkpoints.findIndex((cp) => !cp.checked);
-    if (uncheckedIdx !== -1) {
-      const newCheckpoints = [...selectedTask.checkpoints];
-      newCheckpoints[uncheckedIdx] = {
-        ...newCheckpoints[uncheckedIdx],
-        checked: true,
-        checkedAt: dayjs().format('YYYY-MM-DD HH:mm:ss'),
-      };
-
+    const checkpoint = selectedTask.checkpoints.find(
+      (cp) => cp.qrCode === qrCode || cp.id === qrCode
+    );
+    if (checkpoint && !checkpoint.checked) {
+      const newCheckpoints = selectedTask.checkpoints.map((cp) =>
+        cp.id === checkpoint.id
+          ? { ...cp, checked: true, checkedAt: dayjs().format('YYYY-MM-DD HH:mm:ss') }
+          : cp
+      );
       const allChecked = newCheckpoints.every((cp) => cp.checked);
       updateInspectionTask({
         ...selectedTask,
@@ -84,12 +85,18 @@ const InspectionTasks: React.FC = () => {
         statusLabel: allChecked ? '已完成' : '进行中',
         endTime: allChecked ? dayjs().format('YYYY-MM-DD HH:mm:ss') : undefined,
       });
-      message.success('打卡成功');
+      message.success(`打卡成功：${checkpoint.name}`);
       setShowQrModal(false);
+    } else if (checkpoint?.checked) {
+      message.info('该巡检点已完成打卡');
     } else {
-      message.info('所有巡检点已完成打卡');
+      message.error('无效的巡检点二维码');
     }
   };
+
+  const validQRCodes = selectedTask
+    ? selectedTask.checkpoints.filter((cp) => !cp.checked).map((cp) => cp.qrCode || cp.id)
+    : [];
 
   const columns: ColumnsType<InspectionTask> = [
     {
@@ -357,50 +364,12 @@ const InspectionTasks: React.FC = () => {
         />
       </div>
 
-      <Modal
-        title="扫码打卡"
+      <QRCodeScanner
         open={showQrModal}
-        onCancel={() => setShowQrModal(false)}
-        footer={[
-          <Button key="cancel" onClick={() => setShowQrModal(false)}>
-            取消
-          </Button>,
-          <Button key="confirm" type="primary" onClick={handleScanCode}>
-            模拟扫码
-          </Button>,
-        ]}
-      >
-        {selectedTask && (
-          <div className="text-center py-4">
-            <div className="w-48 h-48 mx-auto bg-white rounded-xl p-4 mb-4">
-              <div className="w-full h-full bg-dark-bg2 rounded flex items-center justify-center">
-                <QrCode className="w-32 h-32 text-dark-text" />
-              </div>
-            </div>
-            <p className="text-dark-text mb-2">{selectedTask.routeName}</p>
-            <p className="text-dark-text3 text-sm">
-              当前进度：
-              {selectedTask.checkpoints.filter((cp) => cp.checked).length}/
-              {selectedTask.checkpoints.length}
-            </p>
-            <div className="mt-4 space-y-2">
-              {selectedTask.checkpoints.map((cp, idx) => (
-                <div
-                  key={cp.id}
-                  className={`flex items-center justify-between p-2 rounded-lg ${
-                    cp.checked ? 'bg-green-900/20' : 'bg-dark-bg3'
-                  }`}
-                >
-                  <span className={cp.checked ? 'text-success' : 'text-dark-text2'}>
-                    {idx + 1}. {cp.name}
-                  </span>
-                  {cp.checked && <CheckCircle className="w-4 h-4 text-success" />}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </Modal>
+        onClose={() => setShowQrModal(false)}
+        onScanSuccess={handleScanSuccess}
+        validQRCodes={validQRCodes}
+      />
     </div>
   );
 };

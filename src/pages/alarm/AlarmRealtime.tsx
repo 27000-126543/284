@@ -12,7 +12,7 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import { useAlarmStore } from '@/store/useAlarmStore';
-import { useUserStore } from '@/store/useUserStore';
+import { usePermission } from '@/hooks/usePermission';
 import { useZoneStore } from '@/store/useZoneStore';
 import { formatDateTime, getLevelColor, getStatusBgColor } from '@/utils/format';
 import { Button, Select, message } from 'antd';
@@ -22,7 +22,7 @@ const { Option } = Select;
 
 const AlarmRealtime: React.FC = () => {
   const { alarms, confirmAlarm } = useAlarmStore();
-  const { currentUser } = useUserStore();
+  const { currentUser, checkZoneAccess } = usePermission();
   const { zones } = useZoneStore();
 
   const [levelFilter, setLevelFilter] = useState<string>('all');
@@ -35,9 +35,10 @@ const AlarmRealtime: React.FC = () => {
       if (levelFilter !== 'all' && alarm.level !== levelFilter) return false;
       if (statusFilter !== 'all' && alarm.status !== statusFilter) return false;
       if (zoneFilter !== 'all' && alarm.zoneId !== zoneFilter) return false;
-      return true;
+      const matchPermission = checkZoneAccess(alarm.zoneId);
+      return matchPermission;
     });
-  }, [alarms, levelFilter, statusFilter, zoneFilter]);
+  }, [alarms, levelFilter, statusFilter, zoneFilter, checkZoneAccess]);
 
   const unconfirmedAlarms = useMemo(
     () => filteredAlarms.filter((a) => a.status === 'unconfirmed'),

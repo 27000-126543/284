@@ -9,7 +9,7 @@ import {
   Eye,
 } from 'lucide-react';
 import { useWorkOrderStore } from '@/store/useWorkOrderStore';
-import { useUserStore } from '@/store/useUserStore';
+import { usePermission } from '@/hooks/usePermission';
 import { useZoneStore } from '@/store/useZoneStore';
 import {
   formatDateTime,
@@ -26,21 +26,24 @@ const { Option } = Select;
 const WorkOrderList: React.FC = () => {
   const navigate = useNavigate();
   const { workOrders, acceptWorkOrder } = useWorkOrderStore();
-  const { currentUser } = useUserStore();
+  const { currentUser, checkZoneAccess } = usePermission();
   const { zones } = useZoneStore();
 
   const [typeFilter, setTypeFilter] = useState<string>('all');
   const [priorityFilter, setPriorityFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [zoneFilter, setZoneFilter] = useState<string>('all');
 
   const filteredWorkOrders = useMemo(() => {
     return workOrders.filter((wo) => {
       if (typeFilter !== 'all' && wo.type !== typeFilter) return false;
       if (priorityFilter !== 'all' && wo.priority !== priorityFilter) return false;
       if (statusFilter !== 'all' && wo.status !== statusFilter) return false;
-      return true;
+      if (zoneFilter !== 'all' && wo.zoneId !== zoneFilter) return false;
+      const matchPermission = checkZoneAccess(wo.zoneId);
+      return matchPermission;
     });
-  }, [workOrders, typeFilter, priorityFilter, statusFilter]);
+  }, [workOrders, typeFilter, priorityFilter, statusFilter, zoneFilter, checkZoneAccess]);
 
   const handleAccept = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -279,6 +282,19 @@ const WorkOrderList: React.FC = () => {
             <Option value="accepted">已接单</Option>
             <Option value="processing">处理中</Option>
             <Option value="completed">已完成</Option>
+          </Select>
+          <Select
+            value={zoneFilter}
+            onChange={setZoneFilter}
+            style={{ width: 150 }}
+            size="middle"
+          >
+            <Option value="all">全部分区</Option>
+            {zones.map((zone) => (
+              <Option key={zone.id} value={zone.id}>
+                {zone.name}
+              </Option>
+            ))}
           </Select>
         </div>
       </div>
