@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   AlertTriangle,
   CheckCircle,
@@ -21,6 +22,7 @@ import type { Alarm } from '@/types';
 const { Option } = Select;
 
 const AlarmRealtime: React.FC = () => {
+  const navigate = useNavigate();
   const { alarms, confirmAlarm } = useAlarmStore();
   const { currentUser, checkZoneAccess } = usePermission();
   const { zones } = useZoneStore();
@@ -194,6 +196,7 @@ const AlarmRealtime: React.FC = () => {
                 alarm.level
               )} hover:bg-dark-bg3/50 transition-all cursor-pointer animate-fade-in-up`}
               style={{ animationDelay: `${index * 30}ms` }}
+              onClick={() => navigate(`/alarm/detail/${alarm.id}`)}
             >
               <div className="flex items-start gap-4">
                 {alarm.status === 'unconfirmed' && (

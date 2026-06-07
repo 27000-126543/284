@@ -10,13 +10,13 @@ import {
   TrendingUp,
 } from 'lucide-react';
 import { Select, DatePicker, Button, Card, message } from 'antd';
-import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { useZoneStore } from '@/store/useZoneStore';
 import { useDeviceStore } from '@/store/useDeviceStore';
 import { useAlarmStore } from '@/store/useAlarmStore';
 import { useWorkOrderStore } from '@/store/useWorkOrderStore';
+import { exportAoaToExcel } from '@/utils/export';
 import dayjs from 'dayjs';
 
 const { RangePicker } = DatePicker;
@@ -214,11 +214,7 @@ const OperationReport: React.FC = () => {
       ['已完成', reportData.completedInspections, '', ''],
     ];
 
-    const ws = XLSX.utils.aoa_to_sheet(data);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, '运维报告');
-    XLSX.writeFile(wb, `管廊运维分析报告_${dayjs().format('YYYYMMDD')}.xlsx`);
-    message.success('Excel导出成功');
+    exportAoaToExcel(data, `管廊运维分析报告_${dayjs().format('YYYYMMDD')}`, '运维报告');
   };
 
   const handleExportPDF = async () => {

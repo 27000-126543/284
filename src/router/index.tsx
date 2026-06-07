@@ -13,6 +13,7 @@ import InspectionTasks from '@/pages/inspection/InspectionTasks';
 import HazardReport from '@/pages/inspection/HazardReport';
 import AlarmRealtime from '@/pages/alarm/AlarmRealtime';
 import AlarmHistory from '@/pages/alarm/AlarmHistory';
+import AlarmDetail from '@/pages/alarm/AlarmDetail';
 import WorkOrderList from '@/pages/workorder/WorkOrderList';
 import WorkOrderDetail from '@/pages/workorder/WorkOrderDetail';
 import OperationReport from '@/pages/report/OperationReport';
@@ -77,6 +78,7 @@ const router = createBrowserRouter([
         children: [
           { path: 'realtime', element: <AlarmRealtime /> },
           { path: 'history', element: <AlarmHistory /> },
+          { path: 'detail/:id', element: <AlarmDetail /> },
         ],
       },
       {

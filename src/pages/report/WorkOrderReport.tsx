@@ -8,10 +8,10 @@ import {
 } from 'lucide-react';
 import { Select, DatePicker, Button, Table, Tag, message } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import * as XLSX from 'xlsx';
 import { useWorkOrderStore } from '@/store/useWorkOrderStore';
 import { useZoneStore } from '@/store/useZoneStore';
 import { getStatusBgColor, getPriorityColor, formatDateTime } from '@/utils/format';
+import { exportToExcel } from '@/utils/export';
 import dayjs from 'dayjs';
 import type { WorkOrder } from '@/types';
 
@@ -150,11 +150,7 @@ const WorkOrderReport: React.FC = () => {
       完成时间: wo.completedAt || '-',
     }));
 
-    const ws = XLSX.utils.json_to_sheet(exportData);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, '工单明细');
-    XLSX.writeFile(wb, `工单处置明细_${dayjs().format('YYYYMMDD')}.xlsx`);
-    message.success('导出成功');
+    exportToExcel(exportData, `工单处置明细_${dayjs().format('YYYYMMDD')}`, '工单明细');
   };
 
   return (
