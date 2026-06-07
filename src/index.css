@@ -1,0 +1,172 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root {
+  font-family: 'Noto Sans SC', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: #0F172A;
+  color: #F1F5F9;
+  min-height: 100vh;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+/* 自定义滚动条 */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1E293B;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #475569;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #64748B;
+}
+
+/* 卡片渐变边框 */
+.card-gradient-border {
+  position: relative;
+  background: #1E293B;
+  border-radius: 12px;
+}
+
+.card-gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  padding: 1px;
+  background: linear-gradient(135deg, #3E92CC, #0A2463);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* 告警脉冲动画 */
+@keyframes alarm-pulse {
+  0%, 100% {
+    opacity: 1;
+    box-shadow: 0 0 0 0 rgba(214, 40, 40, 0.7);
+  }
+  50% {
+    opacity: 0.8;
+    box-shadow: 0 0 0 10px rgba(214, 40, 40, 0);
+  }
+}
+
+.alarm-pulse {
+  animation: alarm-pulse 2s infinite;
+}
+
+/* 数字滚动效果 */
+.count-number {
+  font-variant-numeric: tabular-nums;
+}
+
+/* 背景网格效果 */
+.bg-grid {
+  background-image: 
+    linear-gradient(rgba(62, 146, 204, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(62, 146, 204, 0.05) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* 渐变文字 */
+.text-gradient {
+  background: linear-gradient(135deg, #3E92CC, #55B3EC);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* 发光效果 */
+.glow-blue {
+  box-shadow: 0 0 15px rgba(62, 146, 204, 0.3);
+}
+
+.glow-red {
+  box-shadow: 0 0 15px rgba(214, 40, 40, 0.3);
+}
+
+.glow-green {
+  box-shadow: 0 0 15px rgba(0, 168, 150, 0.3);
+}
+
+/* antd 样式覆盖 */
+.ant-table {
+  background: #1E293B !important;
+  color: #F1F5F9 !important;
+}
+
+.ant-table-thead > tr > th {
+  background: #334155 !important;
+  color: #F1F5F9 !important;
+  border-bottom: 1px solid #475569 !important;
+}
+
+.ant-table-tbody > tr > td {
+  border-bottom: 1px solid #334155 !important;
+}
+
+.ant-table-tbody > tr:hover > td {
+  background: #334155 !important;
+}
+
+.ant-modal-content {
+  background: #1E293B !important;
+  color: #F1F5F9 !important;
+}
+
+.ant-modal-header {
+  background: #1E293B !important;
+  border-bottom: 1px solid #334155 !important;
+}
+
+.ant-modal-title {
+  color: #F1F5F9 !important;
+}
+
+.ant-input, .ant-select-selector, .ant-picker {
+  background: #334155 !important;
+  border-color: #475569 !important;
+  color: #F1F5F9 !important;
+}
+
+.ant-input::placeholder {
+  color: #94A3B8 !important;
+}
+
+.ant-tag {
+  border: none !important;
+}
+
+.ant-switch-checked {
+  background: #00A896 !important;
+}
